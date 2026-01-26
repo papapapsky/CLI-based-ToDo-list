@@ -1,0 +1,30 @@
+{
+  "name": "ttodo",
+  "version": "1.0.0",
+  "description": "Terminal TODO list with TypeScript",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "nodemon ./dist/index.js",
+    "build": "tsc"
+  },
+  "keywords": [
+    "todo",
+    "typescript",
+    "node",
+    "cli"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "git": "^0.1.5"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.10",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

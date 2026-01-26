@@ -1,0 +1,79 @@
+import type { taskPriorities } from "../../index.js";
+import * as readline from "readline/promises";
+import chalk from "chalk";
+import { ITask } from "../../index.js";
+import { taskPriority } from "../../index.js";
+import path, { dirname } from "path";
+import fs from "fs/promises";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+export class addTaskController {
+  #tasksPath = path.join(__dirname, "..", "..", "..", "tasks", "tasks.json");
+  private rl: readline.Interface;
+
+  constructor(rl: readline.Interface) {
+    this.rl = rl;
+  }
+
+  async setTitle() {
+    console.clear();
+    console.log(chalk.gray("Press Enter for exit\n"));
+    const title = await this.rl.question(
+      chalk.green("Please enter task name: "),
+    );
+    if (title === "") return;
+    return title;
+  }
+
+  async setContent() {
+    console.clear();
+    console.log(chalk.gray("Press Enter for exit\n"));
+    const content = await this.rl.question(
+      chalk.green("Now, please enter task content: "),
+    );
+    if (content === "") return;
+    return content;
+  }
+
+  async setPriority() {
+    console.clear();
+    console.log(chalk.gray("Press Enter for exit\n"));
+    const priority = await this.rl.question(
+      chalk.green(
+        "Now, please choose task priority: \n1) Low\n2) Medium\n3) High\n",
+      ),
+    );
+
+    switch (priority) {
+      case "1":
+        return taskPriority.low;
+      case "2":
+        return taskPriority.medium;
+      case "3":
+        return taskPriority.high;
+      default:
+        return undefined;
+    }
+  }
+
+  async constructTask(
+    title: string,
+    content: string,
+    priority: taskPriorities,
+  ) {
+    const newTask: ITask = { title, content, priority, done: false };
+
+    const currentTasks = await fs.readFile(this.#tasksPath, "utf-8");
+    const parsed: ITask[] = JSON.parse(currentTasks);
+    parsed.push(newTask);
+
+    await fs.writeFile(
+      this.#tasksPath,
+      JSON.stringify(parsed, null, 2),
+      "utf-8",
+    );
+  }
+}

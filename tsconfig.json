@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", // современный JS
+    "module": "ESNext", // ES модули
+    "moduleResolution": "node", // как Node ищет модули
+    "rootDir": "./", // корень проекта
+    "outDir": "./dist", // куда компилируются файлы
+    "strict": true, // строгий режим
+    "esModuleInterop": true, // импорт CommonJS модулей
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "declaration": true, // типы
+    "declarationMap": true,
+    "sourceMap": true,
+    "isolatedModules": true
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
