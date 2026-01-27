@@ -64,12 +64,7 @@ export class checkTaskController {
     }
   }
 
-  async showTasks() {
-    console.clear();
-    const toStringTasks = await fs.readFile(this.#pathToTasks, "utf-8");
-    const parsedTasks: ITask[] = JSON.parse(toStringTasks);
-    this.tasks = parsedTasks;
-
+  async printTasks() {
     const setPriorityColor = (priority: taskPriorities) => {
       if (priority === "low") return `${chalk.green(priority)}`;
       if (priority === "medium") return chalk.yellow(priority);
@@ -103,6 +98,15 @@ export class checkTaskController {
         `${chalk.yellow(index + 1)}. ${!done ? chalk.bold(title) : chalk.bgGreen.bold(title)} [${setPriorityColor(priority)}]`,
       );
     });
+  }
+
+  async showTasks() {
+    console.clear();
+    const toStringTasks = await fs.readFile(this.#pathToTasks, "utf-8");
+    const parsedTasks: ITask[] = JSON.parse(toStringTasks);
+    this.tasks = parsedTasks;
+
+    this.printTasks();
 
     console.log(chalk.gray("\nPress Enter for exit"));
     const answer = await this.rl.question(

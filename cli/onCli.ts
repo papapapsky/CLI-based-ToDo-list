@@ -8,39 +8,34 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import * as readline from "readline/promises";
-import { exec } from "child_process";
+import { addTaskAction } from "./cases/onAddCase.js";
+import { listCaseAction } from "./cases/onListCase.js";
+import { onHelpAction } from "./cases/onHelp.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+const pathToTasks = path.join(__dirname, "..", "..", "tasks", "tasks.json");
 
 export const onCli = async (rl: readline.Interface) => {
   const { command, flags } = parseArgs(process.argv);
 
   switch (command) {
     case "add": {
-      const addTask = new addTaskController(rl);
-      await addTask.constructTask(
-        flags.title as string,
-        (flags.content as string) ?? "",
-        (flags.priority as taskPriorities) ?? "low",
-      );
-      process.exit(0);
+      await addTaskAction(rl, flags);
       break;
     }
     case "list": {
+      listCaseAction(pathToTasks, rl, false);
+      break;
+    }
+    case "tolist": {
       console.clear();
-      const pathToTasks = path.join(
-        __dirname,
-        "..",
-        "..",
-        "tasks",
-        "tasks.json",
-      );
-      const tasks = await fs.readFile(pathToTasks, "utf-8");
-      const parsedTasks: ITask[] = JSON.parse(tasks);
-
-      const showTasks = new checkTaskController(parsedTasks, rl);
-      showTasks.showTasks();
+      listCaseAction(pathToTasks, rl, true);
+      break;
+    }
+    case "help": {
+      onHelpAction();
       break;
     }
     default:
