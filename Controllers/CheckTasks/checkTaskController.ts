@@ -47,7 +47,9 @@ export class checkTaskController {
     this.tasks = parsedTasks;
 
     const answer = await this.rl.question(
-      `${chalk.green("What do you want to do")} \n1) Check tasks\n2) Add task\n3) ${chalk.red.bold("Exit")}\n`,
+      `${chalk.green(
+        "What do you want to do"
+      )} \n1) Check tasks\n2) Add task\n3) ${chalk.red.bold("Exit")}\n`
     );
 
     switch (answer) {
@@ -73,11 +75,10 @@ export class checkTaskController {
 
     if (!this.tasks.length) {
       console.log(
-        chalk.redBright("You don`t have any tasks, please create them"),
+        chalk.redBright("You don`t have any tasks, please create them")
       );
       await this.rl.question(chalk.gray("Press Enter for exit "));
-      this.#toStart();
-      return;
+      return this.#toStart();
     }
     const lowTasks: ISortedTask[] = [];
     const mediumTasks: ISortedTask[] = [];
@@ -93,9 +94,14 @@ export class checkTaskController {
       ...mediumTasks,
       ...lowTasks,
     ];
-    sortedTasks.forEach(({ done, priority, title, index }) => {
+    const finishedTasks = sortedTasks.filter((item) => item.done);
+    const unfishedTasks = sortedTasks.filter((item) => !item.done);
+    const allTasks = unfishedTasks.concat(finishedTasks);
+    allTasks.forEach(({ done, priority, title, index }) => {
       console.log(
-        `${chalk.yellow(index + 1)}. ${!done ? chalk.bold(title) : chalk.bgGreen.bold(title)} [${setPriorityColor(priority)}]`,
+        `${chalk.yellow(index + 1)}. ${
+          !done ? chalk.bold(title) : chalk.bgGreen.bold(title)
+        } [${setPriorityColor(priority)}]`
       );
     });
   }
@@ -110,7 +116,7 @@ export class checkTaskController {
 
     console.log(chalk.gray("\nPress Enter for exit"));
     const answer = await this.rl.question(
-      `Pick the task index for read (1-${this.tasks.length}): `,
+      `Pick the task index for read (1-${this.tasks.length}): `
     );
     if (answer === "") return this.#toStart();
     this.showTaskContent(+answer - 1);
@@ -125,22 +131,24 @@ export class checkTaskController {
     const terminalWidth = process.stdout.columns || 80;
     const titlePadding = Math.floor((terminalWidth - task.title.length) / 2);
     const contentPadding = Math.floor(
-      (terminalWidth - task.content.length) / 2,
+      (terminalWidth - task.content.length) / 2
     );
 
     console.log(
       chalk.bgBlackBright(" ").repeat(titlePadding - 2) +
         chalk.yellow(` ${task.title} `) +
-        chalk.bgBlackBright(" ").repeat(titlePadding - 2),
+        chalk.bgBlackBright(" ").repeat(titlePadding - 2)
     );
     console.log(
       chalk.bgBlackBright(" ").repeat(contentPadding - 2) +
         ` ${task.content} ` +
-        chalk.bgBlackBright(" ").repeat(contentPadding - 2),
+        chalk.bgBlackBright(" ").repeat(contentPadding - 2)
     );
 
     const action = await this.rl.question(
-      `Actions:\n${chalk.yellow.bold("1) Finish")}\n${chalk.red.bold("2) Delete")}\n3) Exit\n`,
+      `Actions:\n${chalk.yellow.bold("1) Finish")}\n${chalk.red.bold(
+        "2) Delete"
+      )}\n3) Exit\n`
     );
 
     const helper = new Helper();
@@ -158,7 +166,7 @@ export class checkTaskController {
         await fs.writeFile(
           this.#pathToTasks,
           JSON.stringify(newTasks),
-          "utf-8",
+          "utf-8"
         );
         await this.showTasks();
         break;
