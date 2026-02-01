@@ -4,5 +4,6 @@ export interface IUserData {
   authorized: boolean;
   login: string;
   tasks: ITask[];
-  authToken: string;
+  accessToken: string;
+  refreshToken: string;
 }

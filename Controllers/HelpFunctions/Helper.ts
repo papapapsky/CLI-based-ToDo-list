@@ -15,15 +15,20 @@ export class Helper {
 
   async getUserData() {
     const pathToData = path.join(__dirname, "..", "..", "..", "userData.json");
-    console.log(pathToData);
     const userData = await fs.readFile(pathToData, "utf-8");
-    console.log(userData);
     return JSON.parse(userData) as IUserData;
   }
 
-  async setUserData({ authToken, login, tasks, authorized }: IUserData) {
+  async setUserData({
+    accessToken,
+    login,
+    tasks,
+    authorized,
+    refreshToken,
+  }: IUserData) {
     const userData = await this.getUserData();
-    userData.authToken = authToken;
+    userData.accessToken = accessToken;
+    userData.refreshToken = refreshToken;
     userData.login = login;
     userData.tasks = tasks;
     userData.authorized = authorized;

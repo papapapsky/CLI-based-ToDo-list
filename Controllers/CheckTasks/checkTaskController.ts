@@ -7,7 +7,7 @@ import path, { dirname } from "path";
 import fs from "fs/promises";
 import { addTaskController } from "../AddTask/addTaskController.js";
 import { ISortedTask, sortTasks } from "./functions/sortTasks.js";
-import { Registration } from "../Registration/Registration.js";
+import { Registration } from "../Auth/Registration/Registration.js";
 import { rl } from "../../readline.js";
 
 const __filename = fileURLToPath(import.meta.url);

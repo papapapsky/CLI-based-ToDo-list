@@ -13,7 +13,7 @@ export const postReq = async (withToken: boolean, url: string) => {
       const pathToData = path.join(__dirname, "..", "userData.json");
       const userData = await fs.readFile(pathToData, "utf-8");
       const parsedData: IUserData = JSON.parse(userData);
-      const authToken = parsedData.authToken;
+      const authToken = parsedData.accessToken;
       if (!authToken) return;
       token = authToken;
     }

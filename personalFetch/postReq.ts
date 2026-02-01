@@ -1,36 +1,50 @@
-import fs from "fs/promises";
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
-import type { IUserData } from "../types/IUserData";
+import { Helper } from "../Controllers/HelpFunctions/Helper.js";
+import { refreshAccessToken } from "./refreshToken.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+export async function postReq(
+  data: any,
+  useAuth: boolean,
+  url: string,
+): Promise<any> {
+  const helper = new Helper();
+  const userData = await helper.getUserData();
 
-const headers: Record<string, string> = {
-  "Content-Type": "application/json",
-};
+  let accessToken = userData?.accessToken;
 
-export const postReq = async (body: any, withToken: boolean, url: string) => {
-  try {
-    let token = "";
-    if (withToken) {
-      const pathToData = path.join(__dirname, "..", "userData.json");
-      const userData = await fs.readFile(pathToData, "utf-8");
-      const parsedData: IUserData = JSON.parse(userData);
-      const authToken = parsedData.authToken;
-      if (!authToken) return;
-      token = authToken;
+  const makeRequest = async (token?: string) => {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    if (useAuth && token) {
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-    const request = await fetch(url, {
+    const response = await fetch(url, {
       method: "POST",
       headers,
-      body: JSON.stringify(body),
+      body: JSON.stringify(data),
     });
-    const response = await request.json();
+
     return response;
-  } catch (e) {
-    console.log(e);
+  };
+
+  let response = await makeRequest(accessToken);
+
+  if (response.status === 401 && useAuth && userData?.refreshToken) {
+    const newAccessToken = await refreshAccessToken(userData.refreshToken);
+
+    if (newAccessToken) {
+      await helper.setUserData({
+        ...userData,
+        accessToken: newAccessToken,
+      });
+
+      response = await makeRequest(newAccessToken);
+    } else {
+      throw new Error("Session expired. Please login again.");
+    }
   }
-};
+
+  return response.json();
+}
