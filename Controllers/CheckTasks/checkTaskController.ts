@@ -9,6 +9,8 @@ import { addTaskController } from "../AddTask/addTaskController.js";
 import { ISortedTask, sortTasks } from "./functions/sortTasks.js";
 import { Registration } from "../Auth/Registration/Registration.js";
 import { rl } from "../../readline.js";
+import { saveTasks } from "./functions/saveTasks.js";
+import { error } from "console";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -49,8 +51,9 @@ export class checkTaskController {
     });
     this.sortedTasks = taskPresentational;
   }
-  async showTasks() {
+  async showTasks(message?: string) {
     console.clear();
+    message ? console.log(message) : null;
     const toStringTasks = await fs.readFile(this.#pathToTasks, "utf-8");
     const parsedTasks: ITask[] = JSON.parse(toStringTasks);
     this.tasks = parsedTasks;
@@ -58,16 +61,41 @@ export class checkTaskController {
     this.printTasks();
 
     console.log(chalk.gray("\nPress Enter for exit"));
-    const answer = await rl.question(
-      `Pick the task index for read (1-${this.tasks.length}): `,
-    );
-    if (answer === "") {
-      const start = new programm();
-      process.argv = process.argv.slice(0, 2);
-      return start.onStart();
+    const helper = new Helper();
+    const userData = await helper.getUserData();
+    let answer;
+    if (!userData.authorized) {
+      answer = await rl.question(
+        `Pick the task index for read (1-${this.tasks.length}): `,
+      );
+      if (answer === "") {
+        const start = new programm();
+        process.argv = process.argv.slice(0, 2);
+        return start.onStart();
+      }
+      this.showTaskContent(+answer);
+      return;
+    } else {
+      answer = await rl.question(
+        `1) Pick the task index for read (1-${this.tasks.length})\n2) Save tasks (S) \n3) Load tasks (L)\n`,
+      );
+      if (answer === "") {
+        const start = new programm();
+        start.onStart();
+        return;
+      }
+      if (answer === "S" || answer === "s") {
+        const { error, message } = await saveTasks();
+        if (error) {
+          this.showTasks(chalk.red.bold(error));
+          return;
+        }
+        this.showTasks(chalk.green(message));
+        return;
+      }
+      this.showTaskContent(+answer);
+      return;
     }
-    this.showTaskContent(+answer);
-    return;
   }
 
   async showTaskContent(taskIndex: number) {
@@ -99,7 +127,7 @@ export class checkTaskController {
     );
 
     const helper = new Helper();
-    const tasks: ITask[] = await helper.getTasks(this.#pathToTasks);
+    const tasks: ITask[] = await helper.getTasks();
 
     switch (action) {
       case "1": {

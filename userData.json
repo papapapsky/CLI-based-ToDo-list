@@ -1,1 +1,1 @@
-{"authorized":true,"tasks":[],"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdmM2RiYzBhZDViYjViYTEwNDZjZjUiLCJsb2dpbiI6Im5ldnpsb21hZXpoaGFoYUBnbWFpbC5jb20iLCJpYXQiOjE3Njk5NDcwODAsImV4cCI6MTc2OTk0Nzk4MH0.EborhyLhBYBFbED4AiOYNNGJu3TtOdGv1LU276vMhNc","refreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTdmM2RiYzBhZDViYjViYTEwNDZjZjUiLCJpYXQiOjE3Njk5NDcwODAsImV4cCI6MTc3MDU1MTg4MH0.f1XSM70uJ324MTYbR6muUdTyd7DkGrp_Opw13sDTGgc","login":"papa"}
+{"authorized":false,"tasks":[],"accessToken":"","refreshToken":"","login":""}

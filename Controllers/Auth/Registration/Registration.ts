@@ -20,11 +20,10 @@ type IRegData = Record<Field, string>;
 
 export class Registration {
   async sendData(data: IRegData) {
+    const timer = visualWaiting();
     try {
       const url: string | undefined = process.env.POST_REGISTRATION!;
-      const inteval = visualWaiting();
       const response: IRegisterResponse = await postReq(data, false, url);
-      visualWaiting(inteval as NodeJS.Timeout);
       console.clear();
       if (response.error) {
         return this.registrationMenu(response.error);
@@ -32,26 +31,26 @@ export class Registration {
       return this.codeConfirmation(data);
     } catch (e) {
       this.registrationMenu("Failed to send request. Please try again");
+    } finally {
+      visualWaiting(timer as NodeJS.Timeout);
     }
   }
 
   async registrationMenu(errorMessage?: string) {
-    while (true) {
-      console.clear();
-      console.log(chalk.yellow("Registration"));
-      errorMessage ? console.log(chalk.red(errorMessage)) : null;
-      const login = await rl.question("Your login: ");
-      const password = await rl.question("Your password: ");
-      const email = await rl.question("Your email: ");
+    console.clear();
+    console.log(chalk.yellow("Registration"));
+    errorMessage ? console.log(chalk.red(errorMessage)) : null;
+    const login = await rl.question("Your login: ");
+    const password = await rl.question("Your password: ");
+    const email = await rl.question("Your email: ");
 
-      if (!login || !password || !emailValidation(email)) {
-        console.log(chalk.red("Invalid input, try again."));
-        continue;
-      }
-
-      await this.sendData({ login, password, email });
-      break;
+    if (!login || !password || !emailValidation(email)) {
+      const start = new programm();
+      start.onStart(chalk.red("Your information is invalid. Please try again"));
+      return;
     }
+
+    await this.sendData({ login, password, email });
   }
 
   async codeConfirmation(data: IRegData) {
@@ -76,12 +75,8 @@ export class Registration {
         tasks: [],
         authorized: true,
       });
-      console.clear();
-      await rl.question(
-        chalk.green.bold("Successfully registration! Press any key for leave."),
-      );
       const startPage = new programm();
-      startPage.onStart();
+      startPage.onStart(chalk.green("Successfully registration!"));
     } catch (e) {
       console.log(e);
       this.registrationMenu("Failed to create account, please try again");

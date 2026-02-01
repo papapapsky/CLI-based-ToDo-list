@@ -8,8 +8,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export class Helper {
-  async getTasks(path: string) {
-    const tasks = await fs.readFile(path, "utf-8");
+  async getTasks() {
+    const pathToData = path.join(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "tasks",
+      "tasks.json",
+    );
+    const tasks = await fs.readFile(pathToData, "utf-8");
     return JSON.parse(tasks) satisfies ITask[];
   }
 

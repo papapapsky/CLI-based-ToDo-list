@@ -21,11 +21,10 @@ interface ILoginResponse {
 
 export class Login {
   async sendData(userData: IUserData) {
+    const timer = visualWaiting();
     try {
       const url = process.env.POST_LOGIN!;
-      const interval = visualWaiting();
       const response: ILoginResponse = await postReq(userData, false, url);
-      visualWaiting(interval as NodeJS.Timeout);
       console.clear();
 
       if (response.error) {
@@ -47,6 +46,8 @@ export class Login {
       start.onStart();
     } catch (e) {
       this.loginMenu("Failed to login. Please try again");
+    } finally {
+      visualWaiting(timer as NodeJS.Timeout);
     }
   }
 

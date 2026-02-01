@@ -57,13 +57,14 @@ export class programm {
     await taskController.constructTask(title, content, priority);
   }
 
-  async onStart() {
+  async onStart(message?: string) {
     const args = process.argv.slice(2);
     if (args.length !== 0) {
       await onCli(rl);
       return;
     }
     console.clear();
+    message ? console.log(message) : null;
     const helper = new Helper();
     const userData = await helper.getUserData();
     if (!userData.authorized) {
