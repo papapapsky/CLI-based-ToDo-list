@@ -11,7 +11,7 @@ export const listCaseAction = async (
   const tasks = await fs.readFile(pathToTasks, "utf-8");
   const parsedTasks: ITask[] = JSON.parse(tasks);
 
-  const showTasks = new checkTaskController(parsedTasks, rl);
+  const showTasks = new checkTaskController(parsedTasks);
   if (goto) {
     showTasks.showTasks();
     return;

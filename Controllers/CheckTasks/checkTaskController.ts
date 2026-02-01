@@ -1,4 +1,4 @@
-import { ITask, taskPriorities } from "../../index.js";
+import { ITask, programm, taskPriorities } from "../../index.js";
 import * as readline from "readline/promises";
 import chalk from "chalk";
 import { Helper } from "../HelpFunctions/Helper.js";
@@ -7,60 +7,21 @@ import path, { dirname } from "path";
 import fs from "fs/promises";
 import { addTaskController } from "../AddTask/addTaskController.js";
 import { ISortedTask, sortTasks } from "./functions/sortTasks.js";
+import { Registration } from "../Registration/Registration.js";
+import { rl } from "../../readline.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export class checkTaskController {
   private tasks: ITask[];
-  private rl: readline.Interface;
   private sortedTasks: ISortedTask[];
 
   #pathToTasks = path.join(__dirname, "..", "..", "..", "tasks", "tasks.json");
 
-  constructor(tasks: ITask[], rl: readline.Interface) {
+  constructor(tasks: ITask[]) {
     this.tasks = tasks;
-    this.rl = rl;
     this.sortedTasks = [];
-  }
-
-  async #constructTask() {
-    const taskController = new addTaskController(this.rl);
-    const title: string | undefined = await taskController.setTitle();
-    if (!title) return this.#toStart();
-
-    const content: string | undefined = await taskController.setContent();
-    if (!content) return this.#toStart();
-
-    const priority: taskPriorities | undefined =
-      await taskController.setPriority();
-    if (!priority) return this.#toStart();
-    await taskController.constructTask(title, content, priority);
-    this.#toStart();
-  }
-
-  async #toStart() {
-    console.clear();
-    const toStringTasks = await fs.readFile(this.#pathToTasks, "utf-8");
-    const parsedTasks: ITask[] = JSON.parse(toStringTasks);
-    this.tasks = parsedTasks;
-
-    const answer = await this.rl.question(
-      `${chalk.green("What do you want to do")} \n1) Check tasks\n2) Add task\n3) ${chalk.red.bold("Exit")}\n`,
-    );
-
-    switch (answer) {
-      case "1":
-        this.showTasks();
-        break;
-      case "2":
-        this.#constructTask();
-        break;
-      case "3":
-        process.exit(0);
-      default:
-        this.showTasks();
-    }
   }
 
   async printTasks() {
@@ -74,8 +35,10 @@ export class checkTaskController {
       console.log(
         chalk.redBright("You don`t have any tasks, please create them"),
       );
-      await this.rl.question(chalk.gray("Press Enter for exit "));
-      this.#toStart();
+      await rl.question(chalk.gray("Press Enter for exit "));
+      const start = new programm();
+      process.argv = process.argv.slice(0, 2);
+      start.onStart();
       return;
     }
     const taskPresentational = sortTasks(this.tasks);
@@ -95,10 +58,14 @@ export class checkTaskController {
     this.printTasks();
 
     console.log(chalk.gray("\nPress Enter for exit"));
-    const answer = await this.rl.question(
+    const answer = await rl.question(
       `Pick the task index for read (1-${this.tasks.length}): `,
     );
-    if (answer === "") return this.#toStart();
+    if (answer === "") {
+      const start = new programm();
+      process.argv = process.argv.slice(0, 2);
+      return start.onStart();
+    }
     this.showTaskContent(+answer);
     return;
   }
@@ -127,7 +94,7 @@ export class checkTaskController {
         chalk.bgBlackBright(" ").repeat(contentPadding - 2),
     );
 
-    const action = await this.rl.question(
+    const action = await rl.question(
       `Actions:\n${chalk.yellow.bold("1) Finish")}\n${chalk.red.bold("2) Delete")}\n3) Exit\n`,
     );
 

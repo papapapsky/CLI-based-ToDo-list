@@ -6,7 +6,7 @@ export const addTaskAction = async (
   rl: readline.Interface,
   flags: Record<string, string | boolean>,
 ) => {
-  const addTask = new addTaskController(rl);
+  const addTask = new addTaskController();
   await addTask.constructTask(
     flags.title as string,
     (flags.content as string) ?? "",

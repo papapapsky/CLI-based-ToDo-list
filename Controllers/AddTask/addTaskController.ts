@@ -6,24 +6,18 @@ import { taskPriority } from "../../index.js";
 import path, { dirname } from "path";
 import fs from "fs/promises";
 import { fileURLToPath } from "node:url";
+import { rl } from "../../readline.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export class addTaskController {
   #tasksPath = path.join(__dirname, "..", "..", "..", "tasks", "tasks.json");
-  private rl: readline.Interface;
-
-  constructor(rl: readline.Interface) {
-    this.rl = rl;
-  }
 
   async setTitle() {
     console.clear();
     console.log(chalk.gray("Press Enter for exit\n"));
-    const title = await this.rl.question(
-      chalk.green("Please enter task name: "),
-    );
+    const title = await rl.question(chalk.green("Please enter task name: "));
     if (title === "") return;
     return title;
   }
@@ -31,7 +25,7 @@ export class addTaskController {
   async setContent() {
     console.clear();
     console.log(chalk.gray("Press Enter for exit\n"));
-    const content = await this.rl.question(
+    const content = await rl.question(
       chalk.green("Now, please enter task content: "),
     );
     if (content === "") return;
@@ -41,7 +35,7 @@ export class addTaskController {
   async setPriority() {
     console.clear();
     console.log(chalk.gray("Press Enter for exit\n"));
-    const priority = await this.rl.question(
+    const priority = await rl.question(
       chalk.green(
         "Now, please choose task priority: \n1) Low\n2) Medium\n3) High\n",
       ),
