@@ -1,16 +1,13 @@
 import { ITask, programm, taskPriorities } from "../../index.js";
-import * as readline from "readline/promises";
 import chalk from "chalk";
 import { Helper } from "../HelpFunctions/Helper.js";
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
 import fs from "fs/promises";
-import { addTaskController } from "../AddTask/addTaskController.js";
 import { ISortedTask, sortTasks } from "./functions/sortTasks.js";
-import { Registration } from "../Auth/Registration/Registration.js";
 import { rl } from "../../readline.js";
 import { saveTasks } from "./functions/saveTasks.js";
-import { error } from "console";
+import { loadTasks } from "./functions/loadTasks.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -19,8 +16,14 @@ export class checkTaskController {
   private tasks: ITask[];
   private sortedTasks: ISortedTask[];
 
-  #pathToTasks = path.join(__dirname, "..", "..", "..", "tasks", "tasks.json");
-
+  #pathToUnauthorizedTasks = path.join(
+    __dirname,
+    "..",
+    "..",
+    "..",
+    "tasks",
+    "tasks.json",
+  );
   constructor(tasks: ITask[]) {
     this.tasks = tasks;
     this.sortedTasks = [];
@@ -54,17 +57,28 @@ export class checkTaskController {
   async showTasks(message?: string) {
     console.clear();
     message ? console.log(message) : null;
-    const toStringTasks = await fs.readFile(this.#pathToTasks, "utf-8");
-    const parsedTasks: ITask[] = JSON.parse(toStringTasks);
-    this.tasks = parsedTasks;
+    const helper = new Helper();
+    let tasks: ITask[] = [];
 
+    let { authorized, offlineMode } = await helper.checkAuthorized();
+    if (!authorized || offlineMode) {
+      const toStringTasks = await fs.readFile(
+        this.#pathToUnauthorizedTasks,
+        "utf-8",
+      );
+      tasks = JSON.parse(toStringTasks);
+    } else if (authorized && !offlineMode) {
+      const authorizedUserData = await helper.getUserData();
+      tasks = authorizedUserData.tasks;
+    }
+
+    this.tasks = tasks;
     this.printTasks();
 
     console.log(chalk.gray("\nPress Enter for exit"));
-    const helper = new Helper();
-    const userData = await helper.getUserData();
+
     let answer;
-    if (!userData.authorized) {
+    if (!authorized || offlineMode) {
       answer = await rl.question(
         `Pick the task index for read (1-${this.tasks.length}): `,
       );
@@ -77,7 +91,7 @@ export class checkTaskController {
       return;
     } else {
       answer = await rl.question(
-        `1) Pick the task index for read (1-${this.tasks.length})\n2) Save tasks (S) \n3) Load tasks (L)\n`,
+        `1) Pick the task index for read (1-${this.tasks.length})\n2) Save tasks (S)\n3) Load tasks (L)\n`,
       );
       if (answer === "") {
         const start = new programm();
@@ -86,6 +100,15 @@ export class checkTaskController {
       }
       if (answer === "S" || answer === "s") {
         const { error, message } = await saveTasks();
+        if (error) {
+          this.showTasks(chalk.red.bold(error));
+          return;
+        }
+        this.showTasks(chalk.green(message));
+        return;
+      }
+      if (answer === "L" || answer === "l") {
+        const { error, message } = await loadTasks();
         if (error) {
           this.showTasks(chalk.red.bold(error));
           return;
@@ -126,23 +149,42 @@ export class checkTaskController {
       `Actions:\n${chalk.yellow.bold("1) Finish")}\n${chalk.red.bold("2) Delete")}\n3) Exit\n`,
     );
 
-    const helper = new Helper();
-    const tasks: ITask[] = await helper.getTasks();
-
     switch (action) {
       case "1": {
-        tasks[task.index].done = !tasks[task.index].done;
-        await fs.writeFile(this.#pathToTasks, JSON.stringify(tasks), "utf-8");
+        this.tasks[task.index].done = !this.tasks[task.index].done;
+        const helper = new Helper();
+        const { authorized, offlineMode } = await helper.checkAuthorized();
+        if (!authorized || offlineMode) {
+          await fs.writeFile(
+            this.#pathToUnauthorizedTasks,
+            JSON.stringify(this.tasks),
+            "utf-8",
+          );
+        } else if (!offlineMode && authorized) {
+          const userData = await helper.getUserData();
+          userData.tasks = this.tasks;
+          await helper.setUserData(userData);
+        }
         this.showTasks();
         break;
       }
       case "2": {
-        const newTasks = tasks.filter((item) => item !== tasks[task.index]);
-        await fs.writeFile(
-          this.#pathToTasks,
-          JSON.stringify(newTasks),
-          "utf-8",
+        const newTasks = this.tasks.filter(
+          (item) => item !== this.tasks[task.index],
         );
+        const helper = new Helper();
+        const { authorized, offlineMode } = await helper.checkAuthorized();
+        if (!authorized || offlineMode) {
+          await fs.writeFile(
+            this.#pathToUnauthorizedTasks,
+            JSON.stringify(newTasks),
+            "utf-8",
+          );
+        } else if (authorized && !offlineMode) {
+          const userData = await helper.getUserData();
+          userData.tasks = newTasks;
+          await helper.setUserData(userData);
+        }
         this.showTasks();
         break;
       }

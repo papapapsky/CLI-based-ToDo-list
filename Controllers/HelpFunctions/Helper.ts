@@ -18,7 +18,7 @@ export class Helper {
       "tasks.json",
     );
     const tasks = await fs.readFile(pathToData, "utf-8");
-    return JSON.parse(tasks) satisfies ITask[];
+    return JSON.parse(tasks) as ITask[];
   }
 
   async getUserData() {
@@ -33,6 +33,7 @@ export class Helper {
     tasks,
     authorized,
     refreshToken,
+    offlineMode,
   }: IUserData) {
     const userData = await this.getUserData();
     userData.accessToken = accessToken;
@@ -40,6 +41,7 @@ export class Helper {
     userData.login = login;
     userData.tasks = tasks;
     userData.authorized = authorized;
+    userData.offlineMode = offlineMode;
 
     await fs.writeFile(
       path.join(__dirname, "..", "..", "..", "userData.json"),
@@ -51,7 +53,7 @@ export class Helper {
 
   async checkAuthorized() {
     const userData = await this.getUserData();
-    if (userData.authorized) return true;
-    return false;
+    const { authorized, offlineMode } = userData;
+    return { authorized, offlineMode };
   }
 }

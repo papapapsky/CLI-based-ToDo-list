@@ -11,7 +11,8 @@ export const saveTasks = async () => {
   let timer;
   try {
     timer = visualWaiting();
-    const tasks = await new Helper().getTasks();
+    const userData = await new Helper().getUserData();
+    const tasks = userData.tasks;
     const url = process.env.POST_SAVE_TASKS!;
     const response: IResponse = await postReq({ tasks }, true, url);
     console.clear();

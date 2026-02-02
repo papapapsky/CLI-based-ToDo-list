@@ -1,12 +1,13 @@
 import type { taskPriorities } from "../../index.js";
 import * as readline from "readline/promises";
 import chalk from "chalk";
-import { ITask } from "../../index.js";
+import { ITask, programm } from "../../index.js";
 import { taskPriority } from "../../index.js";
 import path, { dirname } from "path";
 import fs from "fs/promises";
 import { fileURLToPath } from "node:url";
 import { rl } from "../../readline.js";
+import { Helper } from "../HelpFunctions/Helper.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -58,6 +59,7 @@ export class addTaskController {
     content: string,
     priority: taskPriorities,
   ) {
+    const helper = new Helper();
     const newTask: ITask = { title, content, priority, done: false };
 
     const currentTasks = await fs.readFile(this.#tasksPath, "utf-8");
@@ -69,5 +71,13 @@ export class addTaskController {
       JSON.stringify(parsed, null, 2),
       "utf-8",
     );
+    const { authorized, offlineMode } = await helper.checkAuthorized();
+    if (authorized && !offlineMode) {
+      const userData = await helper.getUserData();
+      userData.tasks.push(newTask);
+      await helper.setUserData(userData);
+    }
+    const start = new programm();
+    start.onStart();
   }
 }

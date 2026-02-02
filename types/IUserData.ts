@@ -6,4 +6,5 @@ export interface IUserData {
   tasks: ITask[];
   accessToken: string;
   refreshToken: string;
+  offlineMode: boolean;
 }

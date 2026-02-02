@@ -93,8 +93,9 @@ export class programm {
           this.showTasks();
       }
     } else {
+      const offlineMode = userData.offlineMode;
       const answer = await rl.question(
-        `${chalk.green("What do you want to do")} \n1) Check tasks\n2) Add task\n3) ${chalk.yellow.bold("Logout")}\n4) ${chalk.red.bold("Exit")}\n`,
+        `${chalk.green("What do you want to do")} \n1) Check tasks\n2) Add task\n3) ${chalk.yellow.bold("Logout")}\n4) ${offlineMode ? chalk.blueBright("Online mode") : chalk.gray("Offline mode")}\n5) ${chalk.red.bold("Exit")}\n`,
       );
 
       switch (answer) {
@@ -107,7 +108,7 @@ export class programm {
         case "3":
           console.clear();
           const confirmation = await rl.question(
-            "Do you really want to logout? (y/n)",
+            "Do you really want to logout? (y/n) ",
           );
           switch (confirmation) {
             case "y":
@@ -117,16 +118,22 @@ export class programm {
                 refreshToken: "",
                 login: "",
                 tasks: [],
+                offlineMode: false,
               });
               this.onStart();
               break;
-            case "n":
-              this.onStart();
             default:
               this.onStart();
           }
           break;
         case "4":
+          await helper.setUserData({
+            ...userData,
+            offlineMode: !userData.offlineMode,
+          });
+          this.onStart();
+          break;
+        case "5":
           process.exit(0);
         default:
           this.showTasks();

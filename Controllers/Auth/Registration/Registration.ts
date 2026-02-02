@@ -72,8 +72,9 @@ export class Registration {
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,
         login: data.login,
-        tasks: [],
+        tasks: (await helper.getTasks()) ?? [],
         authorized: true,
+        offlineMode: false,
       });
       const startPage = new programm();
       startPage.onStart(chalk.green("Successfully registration!"));

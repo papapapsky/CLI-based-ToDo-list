@@ -21,8 +21,9 @@ interface ILoginResponse {
 
 export class Login {
   async sendData(userData: IUserData) {
-    const timer = visualWaiting();
+    let timer;
     try {
+      timer = visualWaiting();
       const url = process.env.POST_LOGIN!;
       const response: ILoginResponse = await postReq(userData, false, url);
       console.clear();
@@ -39,9 +40,9 @@ export class Login {
         login: response.login,
         tasks: response.tasks,
         authorized: true,
+        offlineMode: false,
       });
 
-      await rl.question("Successfully login! Press any key to leave.");
       const start = new programm();
       start.onStart();
     } catch (e) {
