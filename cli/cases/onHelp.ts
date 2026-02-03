@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import Table from "cli-table3";
 
 export const onHelpAction = () => {
   const commands = [
@@ -22,9 +23,30 @@ export const onHelpAction = () => {
     },
   ];
 
-  console.table(commands);
+  const table = new Table({
+    head: [
+      chalk.yellow("Name"),
+      chalk.yellow("Flags"),
+      chalk.yellow("Description"),
+      chalk.yellow("Examples"),
+    ],
+    colWidths: [15, 15, 15, 15],
+    wordWrap: true,
+  });
+
+  commands.forEach((cmd) => {
+    table.push([
+      chalk.green(cmd.name),
+      chalk.cyan(cmd.flags),
+      cmd.description,
+      chalk.blue(cmd.examples),
+    ]);
+  });
+
+  console.log(table.toString());
+
   console.log(
-    "For more information go to my github -",
+    "\nFor more information go to my github -",
     chalk.blueBright("https://github.com/papapapsky/CLI-based-ToDo-list"),
   );
 };

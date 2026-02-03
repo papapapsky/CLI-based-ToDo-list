@@ -1,9 +1,4 @@
-import { addTaskController } from "../Controllers/AddTask/addTaskController.js";
 import { parseArgs } from "./parseArgs.js";
-import { taskPriorities } from "../index.js";
-import { checkTaskController } from "../Controllers/CheckTasks/checkTaskController.js";
-import fs from "fs/promises";
-import { ITask } from "../index.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -26,12 +21,12 @@ export const onCli = async (rl: readline.Interface) => {
       break;
     }
     case "list": {
-      listCaseAction(pathToTasks, rl, false);
+      listCaseAction(pathToTasks, false);
       break;
     }
     case "tolist": {
       console.clear();
-      listCaseAction(pathToTasks, rl, true);
+      listCaseAction(pathToTasks, true);
       break;
     }
     case "help": {
