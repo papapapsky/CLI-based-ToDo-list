@@ -1,6 +1,4 @@
 import chalk from "chalk";
-import { stdin, stdout } from "process";
-import * as readline from "readline/promises";
 import fs from "fs/promises";
 import { fileURLToPath } from "url";
 import { addTaskController } from "./Controllers/AddTask/addTaskController.js";
