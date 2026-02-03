@@ -1,5 +1,5 @@
 {
-  "name": "ttodo",
+  "name": "todo",
   "version": "1.0.0",
   "description": "Terminal TODO list with TypeScript",
   "main": "dist/index.js",
