@@ -1,9 +1,7 @@
 import { addTaskController } from "../../Controllers/AddTask/addTaskController.js";
-import * as readline from "readline/promises";
 import { taskPriorities } from "../../index.js";
 
 export const addTaskAction = async (
-  rl: readline.Interface,
   flags: Record<string, string | boolean>,
 ) => {
   const addTask = new addTaskController();

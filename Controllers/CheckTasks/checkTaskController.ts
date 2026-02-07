@@ -30,10 +30,7 @@ export class checkTaskController {
     this.sortedTasks = [];
   }
 
-  private async handleSaveLoad(
-    action: string,
-    message?: string,
-  ): Promise<boolean> {
+  private async handleSaveLoad(action: string): Promise<boolean> {
     if (action === "S" || action === "s") {
       const { error, message: msg } = await saveTasks();
       this.showTasks(chalk.red.bold(error) || chalk.green(msg));
@@ -83,9 +80,8 @@ export class checkTaskController {
     }
   }
 
-  printTasks(): void {
+  printTasks() {
     if (!this.tasks.length) return;
-
     const sorted = sortTasks(this.tasks);
     this.sortedTasks = sorted;
 
@@ -102,8 +98,9 @@ export class checkTaskController {
     if (message) console.log(message);
 
     const helper = new Helper();
+    const currentPath = process.cwd();
     const { tasks, authorized, offlineMode } = await this.loadTasks(helper);
-    this.tasks = tasks;
+    this.tasks = tasks.filter((t) => t.folder === currentPath);
 
     if (!this.tasks.length) {
       if (!authorized || offlineMode) {
@@ -123,8 +120,9 @@ export class checkTaskController {
       const answer: string = await rl.question(
         `1) Save tasks (S)\n2) Load tasks (L)\n3) ${chalk.red("Exit (Enter)")}\n`,
       );
-      if (answer === "") {
-        new programm().onStart();
+      if (answer === "" || answer === "3") {
+        const start = new programm();
+        start.onStart();
         return;
       }
       const response = await this.handleSaveLoad(answer);
@@ -160,12 +158,12 @@ export class checkTaskController {
     this.showTaskContent(+answer);
   }
 
-  async showTaskContent(taskIndex: number) {
+  async showTaskContent(taskIndex: number, sortedTasks?: ISortedTask[]) {
     console.clear();
-    const task = this.sortedTasks.find(
-      (item) => item.visualIndex === taskIndex,
-    );
-    if (!task) return this.showTasks();
+    const task =
+      this.sortedTasks.find((item) => item.visualIndex === taskIndex) ??
+      sortedTasks?.find((item) => item.visualIndex === taskIndex);
+    if (!task) return this.showTasks(chalk.red("Invalid command"));
 
     const terminalWidth = process.stdout.columns || 80;
 

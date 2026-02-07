@@ -60,7 +60,14 @@ export class addTaskController {
     priority: taskPriorities,
   ) {
     const helper = new Helper();
-    const newTask: ITask = { title, content, priority, done: false };
+    const currentFolder = process.cwd();
+    const newTask: ITask = {
+      title,
+      content,
+      priority,
+      done: false,
+      folder: currentFolder,
+    };
 
     const currentTasks = await fs.readFile(this.#tasksPath, "utf-8");
     const parsed: ITask[] = JSON.parse(currentTasks);

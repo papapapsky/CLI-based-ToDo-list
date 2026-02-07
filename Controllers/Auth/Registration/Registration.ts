@@ -41,8 +41,8 @@ export class Registration {
     console.log(chalk.yellow("Registration"));
     errorMessage ? console.log(chalk.red(errorMessage)) : null;
     const login = await rl.question("Your login: ");
-    const password = await rl.question("Your password: ");
     const email = await rl.question("Your email: ");
+    const password = await rl.question("Your password: ");
 
     if (!login || !password || !emailValidation(email)) {
       const start = new programm();
@@ -50,7 +50,7 @@ export class Registration {
       return;
     }
 
-    await this.sendData({ login, password, email });
+    await this.sendData({ email, login, password });
   }
 
   async codeConfirmation(data: IRegData) {

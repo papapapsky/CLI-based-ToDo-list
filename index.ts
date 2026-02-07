@@ -19,6 +19,7 @@ export const taskPriority = {
 } as const;
 
 export interface ITask {
+  folder: string;
   title: string;
   content: string;
   done: boolean;
@@ -58,7 +59,7 @@ export class programm {
   async onStart(message?: string) {
     const args = process.argv.slice(2);
     if (args.length !== 0) {
-      await onCli(rl);
+      await onCli();
       return;
     }
     console.clear();

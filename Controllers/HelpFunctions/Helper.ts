@@ -35,20 +35,24 @@ export class Helper {
     refreshToken,
     offlineMode,
   }: IUserData) {
-    const userData = await this.getUserData();
-    userData.accessToken = accessToken;
-    userData.refreshToken = refreshToken;
-    userData.login = login;
-    userData.tasks = tasks;
-    userData.authorized = authorized;
-    userData.offlineMode = offlineMode;
+    try {
+      const userData = await this.getUserData();
+      userData.accessToken = accessToken;
+      userData.refreshToken = refreshToken;
+      userData.login = login;
+      userData.tasks = tasks;
+      userData.authorized = authorized;
+      userData.offlineMode = offlineMode;
 
-    await fs.writeFile(
-      path.join(__dirname, "..", "..", "..", "userData.json"),
-      JSON.stringify(userData),
-      "utf-8",
-    );
-    return userData;
+      await fs.writeFile(
+        path.join(__dirname, "..", "..", "..", "userData.json"),
+        JSON.stringify(userData),
+        "utf-8",
+      );
+      return userData;
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async checkAuthorized() {

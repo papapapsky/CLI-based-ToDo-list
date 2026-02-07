@@ -1,9 +1,9 @@
-import fs from "fs/promises";
-import { ITask } from "../../index.js";
 import { checkTaskController } from "../../Controllers/CheckTasks/checkTaskController.js";
+import { sortTasks } from "../../Controllers/CheckTasks/functions/sortTasks.js";
 import { Helper } from "../../Controllers/HelpFunctions/Helper.js";
+import type { ITask } from "../../index.js";
 
-export const listCaseAction = async (pathToTasks: string, goto: boolean) => {
+export const gotoTask = async (id: string) => {
   let tasks: ITask[] = [];
   const currentFolder = process.cwd();
   const helper = new Helper();
@@ -11,16 +11,9 @@ export const listCaseAction = async (pathToTasks: string, goto: boolean) => {
   if (userData.authorized && !userData.offlineMode) {
     tasks = userData.tasks.filter((t) => t.folder === currentFolder);
   } else {
-    const toStringedTasks = await fs.readFile(pathToTasks, "utf-8");
-    tasks = JSON.parse(toStringedTasks);
+    tasks = await new Helper().getTasks();
     tasks = tasks.filter((t) => t.folder === currentFolder);
   }
-
-  const showTasks = new checkTaskController(tasks);
-  if (goto) {
-    showTasks.showTasks();
-    return;
-  }
-  showTasks.printTasks();
-  process.exit(0);
+  const sortedTasks = sortTasks(tasks);
+  return await new checkTaskController(tasks).showTaskContent(+id, sortedTasks);
 };
